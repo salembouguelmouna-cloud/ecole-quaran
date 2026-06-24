@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#047857">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <title>لوحة التحكم - الأستاذ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-emerald-700 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📖</span>
+        <span class="font-semibold">مدرسة القرآن</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-emerald-100 text-sm">مرحبا، <%= admin.name %></span>
+        <a href="/admin/students" class="text-white hover:text-emerald-200 text-sm transition">التلاميذ</a>
+        <a href="/logout" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded text-sm transition">خروج</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">لوحة التحكم</h1>
+      <a href="/admin/students/add" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">+ إضافة تلميذ</a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 text-right text-sm font-semibold text-gray-600">
+            <th class="px-4 py-3">التلميذ</th>
+            <th class="px-4 py-3">السورة</th>
+            <th class="px-4 py-3">ولي الأمر</th>
+            <th class="px-4 py-3">آخر حضور</th>
+            <th class="px-4 py-3">الحفظ</th>
+            <th class="px-4 py-3">المراجعة</th>
+            <th class="px-4 py-3">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (students.length === 0) { %>
+            <tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">لا يوجد تلاميذ بعد</td></tr>
+          <% } %>
+          <% students.forEach(s => { %>
+            <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+              <td class="px-4 py-3 font-medium text-gray-800"><%= s.name %></td>
+              <td class="px-4 py-3"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-medium"><%= s.level || '-' %></span></td>
+              <td class="px-4 py-3 text-gray-600"><%= s.parent_name %></td>
+              <td class="px-4 py-3">
+                <% if (s.last_date) { %>
+                  <span class="<%= s.last_presence ? 'text-emerald-600' : 'text-red-500' %>">
+                    <%= s.last_presence ? 'حاضر' : 'غائب' %> (<%= s.last_date %>)
+                  </span>
+                <% } else { %>
+                  <span class="text-gray-400">-</span>
+                <% } %>
+              </td>
+              <td class="px-4 py-3 text-gray-600 max-w-xs truncate"><%= s.last_memorization || '-' %></td>
+              <td class="px-4 py-3 text-gray-600 max-w-xs truncate"><%= s.last_revision || '-' %></td>
+              <td class="px-4 py-3">
+                <a href="/admin/students/<%= s.id %>" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">التفاصيل</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

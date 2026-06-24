@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#047857">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <title><%= student.name %> - المتابعة</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-emerald-700 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📖</span>
+        <span class="font-semibold">مدرسة القرآن</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-emerald-100 text-sm"><%= admin.name %></span>
+        <a href="/admin/dashboard" class="text-white hover:text-emerald-200 text-sm transition">لوحة التحكم</a>
+        <a href="/admin/students" class="text-white hover:text-emerald-200 text-sm transition">التلاميذ</a>
+        <a href="/logout" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded text-sm transition">خروج</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800"><%= student.name %></h1>
+        <p class="text-gray-500 text-sm mt-1 flex items-center gap-2 flex-wrap">
+          <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-medium"><%= student.level || 'غير محدد' %></span>
+          <span>ولي الأمر: <%= student.parent_name %></span>
+          <span>اسم المستخدم: <code class="bg-gray-100 px-1.5 py-0.5 rounded text-emerald-700" dir="ltr"><%= student.parent_username %></code></span>
+        </p>
+      </div>
+      <a href="/admin/progress/add/<%= student.id %>" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">+ إضافة حصة</a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 text-right text-sm font-semibold text-gray-600">
+            <th class="px-4 py-3">التاريخ</th>
+            <th class="px-4 py-3">الحضور</th>
+            <th class="px-4 py-3">الحفظ</th>
+            <th class="px-4 py-3">المراجعة</th>
+            <th class="px-4 py-3">السلوك</th>
+            <th class="px-4 py-3">ملاحظات</th>
+            <th class="px-4 py-3">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (progress.length === 0) { %>
+            <tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">لا توجد حصص مسجلة</td></tr>
+          <% } %>
+          <% progress.forEach(p => { %>
+            <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+              <td class="px-4 py-3 font-medium text-gray-800"><%= p.date %></td>
+              <td class="px-4 py-3">
+                <span class="<%= p.presence ? 'text-emerald-600' : 'text-red-500' %> font-medium">
+                  <%= p.presence ? 'حاضر' : 'غائب' %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-600"><%= p.memorization || '-' %></td>
+              <td class="px-4 py-3 text-gray-600"><%= p.revision || '-' %></td>
+              <td class="px-4 py-3">
+                <% if (p.behavior) { %>
+                  <span class="<%= p.behavior === 'جيد' ? 'text-emerald-600' : p.behavior === 'متوسط' ? 'text-amber-500' : 'text-red-500' %>"><%= p.behavior %></span>
+                <% } else { %>-<% } %>
+              </td>
+              <td class="px-4 py-3 text-gray-500 max-w-xs truncate"><%= p.notes || '-' %></td>
+              <td class="px-4 py-3">
+                <a href="/admin/progress/edit/<%= p.id %>" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium ml-2">تعديل</a>
+                <a href="/admin/progress/delete/<%= p.id %>" class="text-red-500 hover:text-red-700 text-sm font-medium" onclick="return confirm('هل أنت متأكد من حذف هذه الحصة؟')">حذف</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

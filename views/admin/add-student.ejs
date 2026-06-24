@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#047857">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <title>إضافة تلميذ - الأستاذ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-emerald-700 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📖</span>
+        <span class="font-semibold">مدرسة القرآن</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-emerald-100 text-sm"><%= admin.name %></span>
+        <a href="/admin/dashboard" class="text-white hover:text-emerald-200 text-sm transition">لوحة التحكم</a>
+        <a href="/admin/students" class="text-white hover:text-emerald-200 text-sm transition">التلاميذ</a>
+        <a href="/logout" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded text-sm transition">خروج</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-2xl mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">إضافة تلميذ جديد</h1>
+
+    <% if (error) { %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm"><%= error %></div>
+    <% } %>
+
+    <form method="POST" class="bg-white rounded-xl shadow p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">اسم التلميذ *</label>
+          <input type="text" name="name" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">السورة *</label>
+          <select name="level" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+            <option value="">اختر سورة</option>
+            <option value="الفاتحة">الفاتحة</option>
+            <option value="البقرة">البقرة</option>
+            <option value="آل عمران">آل عمران</option>
+            <option value="النساء">النساء</option>
+            <option value="المائدة">المائدة</option>
+            <option value="الأنعام">الأنعام</option>
+            <option value="الأعراف">الأعراف</option>
+            <option value="الأنفال">الأنفال</option>
+            <option value="التوبة">التوبة</option>
+            <option value="يونس">يونس</option>
+            <option value="هود">هود</option>
+            <option value="يوسف">يوسف</option>
+            <option value="الرعد">الرعد</option>
+            <option value="إبراهيم">إبراهيم</option>
+            <option value="الحجر">الحجر</option>
+            <option value="النحل">النحل</option>
+            <option value="الإسراء">الإسراء</option>
+            <option value="الكهف">الكهف</option>
+            <option value="مريم">مريم</option>
+            <option value="طه">طه</option>
+            <option value="الأنبياء">الأنبياء</option>
+            <option value="الحج">الحج</option>
+            <option value="المؤمنون">المؤمنون</option>
+            <option value="النور">النور</option>
+            <option value="الفرقان">الفرقان</option>
+            <option value="الشعراء">الشعراء</option>
+            <option value="النمل">النمل</option>
+            <option value="القصص">القصص</option>
+            <option value="العنكبوت">العنكبوت</option>
+            <option value="الروم">الروم</option>
+            <option value="لقمان">لقمان</option>
+            <option value="السجدة">السجدة</option>
+            <option value="الأحزاب">الأحزاب</option>
+            <option value="سبأ">سبأ</option>
+            <option value="فاطر">فاطر</option>
+            <option value="يس">يس</option>
+            <option value="الصافات">الصافات</option>
+            <option value="ص">ص</option>
+            <option value="الزمر">الزمر</option>
+            <option value="غافر">غافر</option>
+            <option value="فصلت">فصلت</option>
+            <option value="الشورى">الشورى</option>
+            <option value="الزخرف">الزخرف</option>
+            <option value="الدخان">الدخان</option>
+            <option value="الجاثية">الجاثية</option>
+            <option value="الأحقاف">الأحقاف</option>
+            <option value="محمد">محمد</option>
+            <option value="الفتح">الفتح</option>
+            <option value="الحجرات">الحجرات</option>
+            <option value="ق">ق</option>
+            <option value="الذاريات">الذاريات</option>
+            <option value="الطور">الطور</option>
+            <option value="النجم">النجم</option>
+            <option value="القمر">القمر</option>
+            <option value="الرحمن">الرحمن</option>
+            <option value="الواقعة">الواقعة</option>
+            <option value="الحديد">الحديد</option>
+            <option value="المجادلة">المجادلة</option>
+            <option value="الحشر">الحشر</option>
+            <option value="الممتحنة">الممتحنة</option>
+            <option value="الصف">الصف</option>
+            <option value="الجمعة">الجمعة</option>
+            <option value="المنافقون">المنافقون</option>
+            <option value="التغابن">التغابن</option>
+            <option value="الطلاق">الطلاق</option>
+            <option value="التحريم">التحريم</option>
+            <option value="الملك">الملك</option>
+            <option value="القلم">القلم</option>
+            <option value="الحاقة">الحاقة</option>
+            <option value="المعارج">المعارج</option>
+            <option value="نوح">نوح</option>
+            <option value="الجن">الجن</option>
+            <option value="المزمل">المزمل</option>
+            <option value="المدثر">المدثر</option>
+            <option value="القيامة">القيامة</option>
+            <option value="الإنسان">الإنسان</option>
+            <option value="المرسلات">المرسلات</option>
+            <option value="النبأ">النبأ</option>
+            <option value="النازعات">النازعات</option>
+            <option value="عبس">عبس</option>
+            <option value="التكوير">التكوير</option>
+            <option value="الانفطار">الانفطار</option>
+            <option value="المطففين">المطففين</option>
+            <option value="الانشقاق">الانشقاق</option>
+            <option value="البروج">البروج</option>
+            <option value="الطارق">الطارق</option>
+            <option value="الأعلى">الأعلى</option>
+            <option value="الغاشية">الغاشية</option>
+            <option value="الفجر">الفجر</option>
+            <option value="البلد">البلد</option>
+            <option value="الشمس">الشمس</option>
+            <option value="الليل">الليل</option>
+            <option value="الضحى">الضحى</option>
+            <option value="الشرح">الشرح</option>
+            <option value="التين">التين</option>
+            <option value="العلق">العلق</option>
+            <option value="القدر">القدر</option>
+            <option value="البينة">البينة</option>
+            <option value="الزلزلة">الزلزلة</option>
+            <option value="العاديات">العاديات</option>
+            <option value="القارعة">القارعة</option>
+            <option value="التكاثر">التكاثر</option>
+            <option value="العصر">العصر</option>
+            <option value="الهمزة">الهمزة</option>
+            <option value="الفيل">الفيل</option>
+            <option value="قريش">قريش</option>
+            <option value="الماعون">الماعون</option>
+            <option value="الكوثر">الكوثر</option>
+            <option value="الكافرون">الكافرون</option>
+            <option value="النصر">النصر</option>
+            <option value="المسد">المسد</option>
+            <option value="الإخلاص">الإخلاص</option>
+            <option value="الفلق">الفلق</option>
+            <option value="الناس">الناس</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">اسم ولي الأمر *</label>
+        <input type="text" name="parentName" required
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم لولي الأمر *</label>
+          <input type="text" name="parentUsername" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور لولي الأمر *</label>
+          <input type="text" name="parentPassword" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition">إضافة</button>
+        <a href="/admin/students" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition">إلغاء</a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
