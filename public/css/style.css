@@ -1,0 +1,6 @@
+body { font-family: 'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif; }
+.gradient-main { background: linear-gradient(135deg, #064e3b 0%, #047857 30%, #059669 70%, #10b981 100%); }
+.gradient-login { background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%); }
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -8px rgba(0,0,0,0.15); }
+.stat-card { backdrop-filter: blur(10px); }

@@ -1,23 +1,26 @@
-const CACHE = 'quaran-school-cache-v1';
-const urls = ['/', '/login', '/offline'];
+const CACHE = 'manarat-hmim-v2';
+const STATIC = ['/', '/login', '/offline', '/css/style.css'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(urls))
-  );
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(STATIC)));
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(e.request).then((res) => {
-        if (res && res.status === 200) {
-          const clone = res.clone();
-          caches.open(CACHE).then((cache) => cache.put(e.request, clone));
+    fetch(e.request)
+      .then((r) => {
+        if (r.status === 200) {
+          const clone = r.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, clone));
         }
-        return res;
-      }).catch(() => caches.match('/offline'));
-    })
+        return r;
+      })
+      .catch(() => caches.match(e.request).then((c) => c || caches.match('/offline')))
   );
 });

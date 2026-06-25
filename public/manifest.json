@@ -1,7 +1,7 @@
 {
-  "name": "مدرسة القرآن",
-  "short_name": "مدرسة القرآن",
-  "description": "تطبيق متابعة تلاميذ مدرسة القرآن",
+  "name": "منارة حميم",
+  "short_name": "منارة حميم",
+  "description": "تطبيق متابعة تلاميذ منارة حميم",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

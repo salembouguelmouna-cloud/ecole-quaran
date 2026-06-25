@@ -8,13 +8,18 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <title>إضافة تلميذ - منارة حميم</title>
+  <title>تعديل تلميذ - منارة حميم</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
   <script>
-    function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
-    function toggleDark() { document.documentElement.classList.toggle('dark'); localStorage.setItem('dark', document.documentElement.classList.contains('dark')); }
+    function toggleMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('dark', document.documentElement.classList.contains('dark'));
+    }
     if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
   </script>
 </head>
@@ -44,20 +49,19 @@
 
   <main class="max-w-2xl mx-auto px-4 py-6">
     <div class="flex items-center gap-3 mb-6">
-      <a href="/admin/students" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg">←</a>
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">إضافة تلميذ جديد</h1>
+      <a href="/admin/students/<%= student.id %>" class="text-gray-400 hover:text-gray-600 text-lg">←</a>
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">تعديل التلميذ</h1>
     </div>
-    <p class="text-gray-500 dark:text-gray-400 mb-6 -mt-4">أدخل معلومات التلميذ وولي الأمر</p>
 
     <% if (error) { %>
       <div class="bg-red-50 dark:bg-red-900/30 border-r-4 border-red-500 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-4 text-sm"><%= error %></div>
     <% } %>
 
-    <form method="POST" action="/admin/students/add" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+    <form method="POST" action="/admin/students/edit/<%= student.id %>" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم التلميذ *</label>
-          <input type="text" name="name" required
+          <input type="text" name="name" value="<%= student.name %>" required
             class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
         <div>
@@ -66,7 +70,7 @@
             class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
             <option value="">اختر سورة</option>
             <% ['الفاتحة','البقرة','آل عمران','النساء','المائدة','الأنعام','الأعراف','الأنفال','التوبة','يونس','هود','يوسف','الرعد','إبراهيم','الحجر','النحل','الإسراء','الكهف','مريم','طه','الأنبياء','الحج','المؤمنون','النور','الفرقان','الشعراء','النمل','القصص','العنكبوت','الروم','لقمان','السجدة','الأحزاب','سبأ','فاطر','يس','الصافات','ص','الزمر','غافر','فصلت','الشورى','الزخرف','الدخان','الجاثية','الأحقاف','محمد','الفتح','الحجرات','ق','الذاريات','الطور','النجم','القمر','الرحمن','الواقعة','الحديد','المجادلة','الحشر','الممتحنة','الصف','الجمعة','المنافقون','التغابن','الطلاق','التحريم','الملك','القلم','الحاقة','المعارج','نوح','الجن','المزمل','المدثر','القيامة','الإنسان','المرسلات','النبأ','النازعات','عبس','التكوير','الانفطار','المطففين','الانشقاق','البروج','الطارق','الأعلى','الغاشية','الفجر','البلد','الشمس','الليل','الضحى','الشرح','التين','العلق','القدر','البينة','الزلزلة','العاديات','القارعة','التكاثر','العصر','الهمزة','الفيل','قريش','الماعون','الكوثر','الكافرون','النصر','المسد','الإخلاص','الفلق','الناس'].forEach(s => { %>
-              <option value="<%= s %>"><%= s %></option>
+              <option value="<%= s %>" <%= student.level === s ? 'selected' : '' %>><%= s %></option>
             <% }) %>
           </select>
         </div>
@@ -74,26 +78,26 @@
 
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم ولي الأمر *</label>
-        <input type="text" name="parentName" required
+        <input type="text" name="parentName" value="<%= student.parent_name %>" required
           class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المستخدم لولي الأمر *</label>
-          <input type="text" name="parentUsername" required
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المستخدم</label>
+          <input type="text" name="parentUsername" value="<%= student.parent_username %>" required
             class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور لولي الأمر *</label>
-          <input type="text" name="parentPassword" required
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور (اترك فارغاً إن لم ترد التغيير)</label>
+          <input type="text" name="parentPassword" placeholder="******"
             class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
       </div>
 
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition shadow-md">إضافة</button>
-        <a href="/admin/students" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-2.5 rounded-xl font-medium transition">إلغاء</a>
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition shadow-md">حفظ التعديلات</button>
+        <a href="/admin/students/<%= student.id %>" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-2.5 rounded-xl font-medium transition">إلغاء</a>
       </div>
     </form>
   </main>

@@ -10,56 +10,74 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <title>تعديل الحصة</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+  <script>
+    function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+    function toggleDark() { document.documentElement.classList.toggle('dark'); localStorage.setItem('dark', document.documentElement.classList.contains('dark')); }
+    if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
+  </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-emerald-700 text-white shadow-lg">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <nav class="gradient-main text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">📖</span>
-        <span class="font-semibold">مدرسة القرآن</span>
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span>
+        <span class="font-bold text-lg">منارة حميم</span>
       </div>
-      <div class="flex items-center gap-4">
-        <span class="text-emerald-100 text-sm"><%= admin.name %></span>
-        <a href="/admin/dashboard" class="text-white hover:text-emerald-200 text-sm transition">لوحة التحكم</a>
-        <a href="/logout" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded text-sm transition">خروج</a>
+      <div class="hidden md:flex items-center gap-3">
+        <span class="text-emerald-100 text-sm bg-white/10 px-3 py-1 rounded-full"><%= admin.name %></span>
+        <a href="/admin/dashboard" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">لوحة التحكم</a>
+        <a href="/admin/students/<%= record.student_id %>" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm"><%= record.student_name %></a>
+        <button onclick="toggleDark()" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">🌓</button>
+        <a href="/logout" class="bg-red-500/80 hover:bg-red-500 px-3 py-1.5 rounded-lg text-sm">خروج</a>
       </div>
+      <button class="md:hidden text-2xl" onclick="toggleMenu()">☰</button>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 space-y-2">
+      <a href="/admin/dashboard" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">لوحة التحكم</a>
+      <a href="/admin/students/<%= record.student_id %>" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm"><%= record.student_name %></a>
+      <button onclick="toggleDark()" class="block w-full text-right hover:bg-white/10 px-3 py-2 rounded-lg text-sm">🌓 الوضع الليلي</button>
+      <a href="/logout" class="block bg-red-500/80 hover:bg-red-500 px-3 py-2 rounded-lg text-sm">خروج</a>
     </div>
   </nav>
 
   <main class="max-w-2xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">تعديل الحصة</h1>
-    <p class="text-gray-500 mb-6">التلميذ: <strong><%= record.student_name %></strong> &bull; التاريخ: <%= record.date %></p>
+    <div class="flex items-center gap-3 mb-6">
+      <a href="/admin/students/<%= record.student_id %>" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg">←</a>
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">تعديل الحصة</h1>
+    </div>
+    <p class="text-gray-500 dark:text-gray-400 mb-6">التلميذ: <strong class="text-gray-800 dark:text-white"><%= record.student_name %></strong> &bull; التاريخ: <%= record.date %></p>
 
-    <form method="POST" class="bg-white rounded-xl shadow p-6 space-y-4">
+    <form method="POST" action="/admin/progress/edit/<%= record.id %>" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">التاريخ</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">التاريخ</label>
         <input type="date" name="date" value="<%= record.date %>"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+          class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
       </div>
 
       <div class="flex items-center gap-2">
-        <input type="checkbox" name="presence" <%= record.presence ? 'checked' : '' %>
+        <input type="checkbox" name="presence" id="presence" <%= record.presence ? 'checked' : '' %>
           class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
-        <label class="text-sm font-medium text-gray-700">حاضر</label>
+        <label for="presence" class="text-sm font-medium text-gray-700 dark:text-gray-300">حاضر</label>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">الحفظ</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الحفظ</label>
         <textarea name="memorization" rows="2"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"><%= record.memorization %></textarea>
+          class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500"><%= record.memorization %></textarea>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">المراجعة</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">المراجعة</label>
         <textarea name="revision" rows="2"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"><%= record.revision %></textarea>
+          class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500"><%= record.revision %></textarea>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">السلوك</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">السلوك</label>
         <select name="behavior"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+          class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
           <option value="" <%= !record.behavior ? 'selected' : '' %>>-</option>
           <option value="جيد" <%= record.behavior === 'جيد' ? 'selected' : '' %>>جيد</option>
           <option value="متوسط" <%= record.behavior === 'متوسط' ? 'selected' : '' %>>متوسط</option>
@@ -68,14 +86,14 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">ملاحظات</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ملاحظات</label>
         <textarea name="notes" rows="2"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"><%= record.notes %></textarea>
+          class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500"><%= record.notes %></textarea>
       </div>
 
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition">حفظ التعديلات</button>
-        <a href="/admin/students/<%= record.student_id %>" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition">إلغاء</a>
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition shadow-md">حفظ التعديلات</button>
+        <a href="/admin/students/<%= record.student_id %>" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-2.5 rounded-xl font-medium transition">إلغاء</a>
       </div>
     </form>
   </main>

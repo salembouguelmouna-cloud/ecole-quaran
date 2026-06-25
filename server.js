@@ -78,7 +78,25 @@ app.get('/admin/dashboard', requireAdmin, (req, res) => {
     ORDER BY s.name
   `).all();
 
-  res.render('admin/dashboard', { admin: req.session.user, students });
+  const allProgress = db.prepare('SELECT presence FROM progress').all();
+  const totalSessions = allProgress.length;
+  const presentSessions = allProgress.filter(p => p.presence).length;
+  const attendanceRate = totalSessions > 0 ? Math.round(presentSessions / totalSessions * 100) : 0;
+
+  const levels = [...new Set(students.map(s => s.level).filter(Boolean))];
+  const recent = db.prepare('SELECT date FROM progress ORDER BY date DESC LIMIT 1').get();
+
+  res.render('admin/dashboard', {
+    admin: req.session.user,
+    students,
+    stats: {
+      totalStudents: students.length,
+      totalLevels: levels.length,
+      attendanceRate,
+      totalSessions,
+      lastSessionDate: recent ? recent.date : null
+    }
+  });
 });
 
 app.get('/admin/students', requireAdmin, (req, res) => {
@@ -105,6 +123,41 @@ app.post('/admin/students/add', requireAdmin, (req, res) => {
   res.redirect('/admin/students');
 });
 
+app.get('/admin/students/edit/:id', requireAdmin, (req, res) => {
+  const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
+  if (!student) return res.redirect('/admin/students');
+  res.render('admin/edit-student', { admin: req.session.user, student, error: null });
+});
+
+app.post('/admin/students/edit/:id', requireAdmin, (req, res) => {
+  const { name, level, parentName, parentUsername, parentPassword } = req.body;
+  const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
+  if (!student) return res.redirect('/admin/students');
+
+  try {
+    if (parentPassword) {
+      const hashed = bcrypt.hashSync(parentPassword, 10);
+      db.prepare('UPDATE students SET name=?, level=?, parent_name=?, parent_username=?, parent_password=? WHERE id=?')
+        .run(name, level || '', parentName, parentUsername, hashed, req.params.id);
+    } else {
+      db.prepare('UPDATE students SET name=?, level=?, parent_name=?, parent_username=? WHERE id=?')
+        .run(name, level || '', parentName, parentUsername, req.params.id);
+    }
+    res.redirect('/admin/students/' + req.params.id);
+  } catch (err) {
+    console.error('Error editing student:', err);
+    res.render('admin/edit-student', { admin: req.session.user, student, error: 'حدث خطأ أثناء التعديل' });
+  }
+});
+
+app.get('/admin/students/delete/:id', requireAdmin, (req, res) => {
+  const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
+  if (!student) return res.redirect('/admin/students');
+  db.prepare('DELETE FROM progress WHERE student_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM students WHERE id = ?').run(req.params.id);
+  res.redirect('/admin/students');
+});
+
 app.get('/admin/students/:id', requireAdmin, (req, res) => {
   const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
   if (!student) return res.redirect('/admin/students');
@@ -120,14 +173,19 @@ app.get('/admin/progress/add/:id', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/progress/add/:id', requireAdmin, (req, res) => {
-  const { date, presence, memorization, revision, behavior, notes } = req.body;
-  const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
-  if (!student) return res.redirect('/admin/students');
+  try {
+    const { date, presence, memorization, revision, behavior, notes } = req.body;
+    const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
+    if (!student) return res.redirect('/admin/students');
 
-  db.prepare('INSERT INTO progress (student_id, date, presence, memorization, revision, behavior, notes) VALUES (?, ?, ?, ?, ?, ?, ?)')
-    .run(req.params.id, date || new Date().toISOString().split('T')[0], presence === 'on' ? 1 : 0, memorization || '', revision || '', behavior || '', notes || '');
+    db.prepare('INSERT INTO progress (student_id, date, presence, memorization, revision, behavior, notes) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(req.params.id, date || new Date().toISOString().split('T')[0], presence === 'on' ? 1 : 0, memorization || '', revision || '', behavior || '', notes || '');
 
-  res.redirect('/admin/students/' + req.params.id);
+    res.redirect('/admin/students/' + req.params.id);
+  } catch (err) {
+    console.error('Error adding progress:', err);
+    res.status(500).send('Erreur lors de l\'ajout de la séance');
+  }
 });
 
 app.get('/admin/progress/edit/:id', requireAdmin, (req, res) => {
@@ -137,14 +195,19 @@ app.get('/admin/progress/edit/:id', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/progress/edit/:id', requireAdmin, (req, res) => {
-  const { date, presence, memorization, revision, behavior, notes } = req.body;
-  const record = db.prepare('SELECT * FROM progress WHERE id = ?').get(req.params.id);
-  if (!record) return res.redirect('/admin/students');
+  try {
+    const { date, presence, memorization, revision, behavior, notes } = req.body;
+    const record = db.prepare('SELECT * FROM progress WHERE id = ?').get(req.params.id);
+    if (!record) return res.redirect('/admin/students');
 
-  db.prepare('UPDATE progress SET date=?, presence=?, memorization=?, revision=?, behavior=?, notes=? WHERE id=?')
-    .run(date || record.date, presence === 'on' ? 1 : 0, memorization || '', revision || '', behavior || '', notes || '', req.params.id);
+    db.prepare('UPDATE progress SET date=?, presence=?, memorization=?, revision=?, behavior=?, notes=? WHERE id=?')
+      .run(date || record.date, presence === 'on' ? 1 : 0, memorization || '', revision || '', behavior || '', notes || '', req.params.id);
 
-  res.redirect('/admin/students/' + record.student_id);
+    res.redirect('/admin/students/' + record.student_id);
+  } catch (err) {
+    console.error('Error editing progress:', err);
+    res.status(500).send('Erreur lors de la modification de la séance');
+  }
 });
 
 app.get('/admin/progress/delete/:id', requireAdmin, (req, res) => {
@@ -156,6 +219,18 @@ app.get('/admin/progress/delete/:id', requireAdmin, (req, res) => {
   } else {
     res.redirect('/admin/students');
   }
+});
+
+app.get('/admin/export/csv', requireAdmin, (req, res) => {
+  const students = db.prepare('SELECT * FROM students ORDER BY name').all();
+  const rows = [['الاسم', 'السورة', 'ولي الأمر', 'اسم المستخدم', 'تاريخ التسجيل']];
+  students.forEach(s => rows.push([s.name, s.level, s.parent_name, s.parent_username, s.created_at]));
+
+  const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const bom = '\uFEFF';
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=students.csv');
+  res.send(bom + csv);
 });
 
 app.get('/parent/dashboard', requireAuth, (req, res) => {

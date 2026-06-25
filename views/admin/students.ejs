@@ -8,62 +8,113 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <title>التلاميذ - الأستاذ</title>
+  <title>التلاميذ - منارة حميم</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+  <script>
+    function toggleMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('dark', document.documentElement.classList.contains('dark'));
+    }
+    if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
+  </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-emerald-700 text-white shadow-lg">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <nav class="gradient-main text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">📖</span>
-        <span class="font-semibold">مدرسة القرآن</span>
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span>
+        <span class="font-bold text-lg">منارة حميم</span>
       </div>
-      <div class="flex items-center gap-4">
-        <span class="text-emerald-100 text-sm"><%= admin.name %></span>
-        <a href="/admin/dashboard" class="text-white hover:text-emerald-200 text-sm transition">لوحة التحكم</a>
-        <a href="/logout" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded text-sm transition">خروج</a>
+      <div class="hidden md:flex items-center gap-3">
+        <span class="text-emerald-100 text-sm bg-white/10 px-3 py-1 rounded-full"><%= admin.name %></span>
+        <a href="/admin/dashboard" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">لوحة التحكم</a>
+        <a href="/admin/students" class="bg-white/20 text-white px-3 py-1.5 rounded-lg text-sm font-medium">التلاميذ</a>
+        <button onclick="toggleDark()" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">🌓</button>
+        <a href="/logout" class="bg-red-500/80 hover:bg-red-500 px-3 py-1.5 rounded-lg text-sm">خروج</a>
       </div>
+      <button class="md:hidden text-2xl" onclick="toggleMenu()">☰</button>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 space-y-2">
+      <a href="/admin/dashboard" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">لوحة التحكم</a>
+      <a href="/admin/students" class="block bg-white/20 px-3 py-2 rounded-lg text-sm">التلاميذ</a>
+      <button onclick="toggleDark()" class="block w-full text-right hover:bg-white/10 px-3 py-2 rounded-lg text-sm">🌓 الوضع الليلي</button>
+      <a href="/logout" class="block bg-red-500/80 hover:bg-red-500 px-3 py-2 rounded-lg text-sm">خروج</a>
     </div>
   </nav>
 
   <main class="max-w-7xl mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">إدارة التلاميذ</h1>
-      <a href="/admin/students/add" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">+ إضافة تلميذ</a>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">إدارة التلاميذ</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1"><%= students.length %> تلميذ مسجل</p>
+      </div>
+      <a href="/admin/students/add" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-md hover:shadow-lg flex items-center gap-2">
+        <span class="text-lg">+</span> إضافة تلميذ
+      </a>
     </div>
 
-    <div class="bg-white rounded-xl shadow overflow-hidden">
-      <table class="w-full">
-        <thead>
-          <tr class="bg-gray-50 text-right text-sm font-semibold text-gray-600">
-            <th class="px-4 py-3">الاسم</th>
-            <th class="px-4 py-3">السورة</th>
-            <th class="px-4 py-3">ولي الأمر</th>
-            <th class="px-4 py-3">اسم المستخدم</th>
-            <th class="px-4 py-3">تاريخ التسجيل</th>
-            <th class="px-4 py-3">الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (students.length === 0) { %>
-            <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">لا يوجد تلاميذ بعد</td></tr>
-          <% } %>
-          <% students.forEach(s => { %>
-            <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
-              <td class="px-4 py-3 font-medium text-gray-800"><%= s.name %></td>
-              <td class="px-4 py-3"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-medium"><%= s.level || '-' %></span></td>
-              <td class="px-4 py-3 text-gray-600"><%= s.parent_name %></td>
-              <td class="px-4 py-3 text-gray-600" dir="ltr"><%= s.parent_username %></td>
-              <td class="px-4 py-3 text-gray-500 text-sm"><%= new Date(s.created_at).toLocaleDateString('ar-MA') %></td>
-              <td class="px-4 py-3">
-                <a href="/admin/students/<%= s.id %>" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">المتابعة</a>
-              </td>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h2 class="font-bold text-gray-800 dark:text-white">قائمة التلاميذ</h2>
+        <input type="text" id="searchInput" placeholder="🔍 بحث..." oninput="filterTable()" class="px-3 py-1.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-48">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full" id="studentsTable">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800/50 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th class="px-5 py-3">الاسم</th>
+              <th class="px-5 py-3">السورة</th>
+              <th class="px-5 py-3">ولي الأمر</th>
+              <th class="px-5 py-3">اسم المستخدم</th>
+              <th class="px-5 py-3">تاريخ التسجيل</th>
+              <th class="px-5 py-3">الإجراءات</th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% if (students.length === 0) { %>
+              <tr><td colspan="6" class="px-5 py-12 text-center text-gray-400 dark:text-gray-500">
+                <div class="text-4xl mb-2">📋</div>
+                <p>لا يوجد تلاميذ بعد</p>
+              </td></tr>
+            <% } %>
+            <% students.forEach(s => { %>
+              <tr class="border-t border-gray-100 dark:border-gray-700 hover:bg-emerald-50/50 dark:hover:bg-gray-700/50 transition student-row">
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 rounded-full flex items-center justify-center text-sm font-bold"><%= s.name.charAt(0) %></span>
+                    <span class="font-medium text-gray-800 dark:text-white student-name"><%= s.name %></span>
+                  </div>
+                </td>
+                <td class="px-5 py-4"><span class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-medium"><%= s.level || '-' %></span></td>
+                <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm"><%= s.parent_name %></td>
+                <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm font-mono" dir="ltr"><%= s.parent_username %></td>
+                <td class="px-5 py-4 text-gray-500 dark:text-gray-500 text-sm"><%= new Date(s.created_at).toLocaleDateString('ar-MA') %></td>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-2">
+                    <a href="/admin/students/<%= s.id %>" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 text-sm font-medium bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 px-3 py-1.5 rounded-lg transition">المتابعة</a>
+                    <a href="/admin/students/edit/<%= s.id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 text-sm bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded-lg transition">تعديل</a>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
+
+  <script>
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.student-row').forEach(r => {
+        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+  </script>
 </body>
 </html>
