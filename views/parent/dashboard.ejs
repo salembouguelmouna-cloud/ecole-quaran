@@ -9,20 +9,23 @@
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <title>متابعة <%= student.name %> - منارة حميم</title>
+  <script>
+    tailwind.config={darkMode:"class"};
+    if (localStorage.getItem("dark")==="true") document.documentElement.classList.add("dark");
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
   <script>
     function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
     function toggleDark() { document.documentElement.classList.toggle('dark'); localStorage.setItem('dark', document.documentElement.classList.contains('dark')); }
-    if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
-  </script>
+    </script>
 </head>
 <body class="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors">
   <nav class="gradient-main text-white shadow-lg">
     <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span>
+        <% if (admin && admin.logo) { %><img src="<%= admin.logo %>" class="w-9 h-9 rounded-lg object-cover"><% } else { %><span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span><% } %>
         <span class="font-bold text-lg">منارة حميم</span>
       </div>
       <div class="hidden md:flex items-center gap-3">
@@ -48,6 +51,17 @@
             <span class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full text-xs font-medium"><%= student.level || 'غير محدد' %></span>
             <span>مسجل منذ <%= new Date(student.created_at).toLocaleDateString('ar-MA') %></span>
           </p>
+          <% if (admin) { %>
+            <p class="text-gray-500 dark:text-gray-400 text-xs mt-2 flex items-center gap-2 flex-wrap">
+              <span>🕌 <%= admin.school_name %></span>
+              <% if (admin.phone) { %>
+                <span>|</span>
+                <span>📞 <a href="tel:<%= admin.phone %>" class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium" dir="ltr"><%= admin.phone %></a></span>
+                <span>|</span>
+                <span>💬 <a href="https://wa.me/<%= admin.phone.replace(/[^0-9]/g,'') %>" target="_blank" class="text-green-600 dark:text-green-400 hover:underline font-medium">واتساب</a></span>
+              <% } %>
+            </p>
+          <% } %>
         </div>
       </div>
     </div>

@@ -9,21 +9,24 @@
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <title>تعديل الحصة</title>
+  <script>
+    tailwind.config={darkMode:"class"};
+    if (localStorage.getItem("dark")==="true") document.documentElement.classList.add("dark");
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
   <script>
     function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
     function toggleDark() { document.documentElement.classList.toggle('dark'); localStorage.setItem('dark', document.documentElement.classList.contains('dark')); }
-    if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
-  </script>
+    </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
   <nav class="gradient-main text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span>
-        <span class="font-bold text-lg">منارة حميم</span>
+        <% if (admin.logo) { %><img src="<%= admin.logo %>" class="w-9 h-9 rounded-lg object-cover"><% } else { %><span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span><% } %>
+        <span class="font-bold text-lg"><%= admin.schoolName || 'منارة حميم' %></span>
       </div>
       <div class="hidden md:flex items-center gap-3">
         <span class="text-emerald-100 text-sm bg-white/10 px-3 py-1 rounded-full"><%= admin.name %></span>

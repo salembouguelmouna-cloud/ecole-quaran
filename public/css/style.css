@@ -4,3 +4,17 @@ body { font-family: 'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif; }
 .card-hover { transition: all 0.3s ease; }
 .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -8px rgba(0,0,0,0.15); }
 .stat-card { backdrop-filter: blur(10px); }
+
+/* Dark mode fallback (Tailwind CDN darkMode: class) */
+.dark body,
+.dark .bg-white,
+.dark .bg-gray-50 { background-color: #1f2937 !important; }
+.dark .bg-gray-100 { background-color: #374151 !important; }
+.dark .text-gray-800,
+.dark .text-gray-900 { color: #f3f4f6 !important; }
+.dark .text-gray-500 { color: #9ca3af !important; }
+.dark .text-gray-400 { color: #6b7280 !important; }
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-emerald-100 { border-color: #374151 !important; }
+.dark .divide-gray-100 { border-color: #374151 !important; }

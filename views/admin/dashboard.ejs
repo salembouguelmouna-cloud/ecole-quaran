@@ -8,7 +8,11 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <title>لوحة التحكم - منارة حميم</title>
+  <title>لوحة التحكم - <%= admin.schoolName || 'منارة حميم' %></title>
+  <script>
+    tailwind.config={darkMode:"class"};
+    if (localStorage.getItem("dark")==="true") document.documentElement.classList.add("dark");
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
@@ -20,20 +24,22 @@
       document.documentElement.classList.toggle('dark');
       localStorage.setItem('dark', document.documentElement.classList.contains('dark'));
     }
-    if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
-  </script>
+    </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
   <nav class="gradient-main text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span>
-        <span class="font-bold text-lg">منارة حميم</span>
+        <% if (admin.logo) { %><img src="<%= admin.logo %>" class="w-9 h-9 rounded-lg object-cover"><% } else { %><span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span><% } %>
+        <span class="font-bold text-lg"><%= admin.schoolName || 'منارة حميم' %></span>
       </div>
       <div class="hidden md:flex items-center gap-3">
         <span class="text-emerald-100 text-sm bg-white/10 px-3 py-1 rounded-full"><%= admin.name %></span>
         <a href="/admin/dashboard" class="bg-white/20 text-white px-3 py-1.5 rounded-lg text-sm font-medium">لوحة التحكم</a>
         <a href="/admin/students" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">التلاميذ</a>
+        <a href="/admin/ranking" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">🏆 الترتيب</a>
+            <a href="/admin/calendar" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">📆 التقويم</a>
+            <a href="/admin/settings" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">الإعدادات</a>
         <a href="/admin/export/csv" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">📥 تصدير</a>
         <button onclick="toggleDark()" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">🌓</button>
         <a href="/logout" class="bg-red-500/80 hover:bg-red-500 px-3 py-1.5 rounded-lg text-sm">خروج</a>
@@ -43,6 +49,9 @@
     <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 space-y-2">
       <a href="/admin/dashboard" class="block bg-white/20 px-3 py-2 rounded-lg text-sm">لوحة التحكم</a>
       <a href="/admin/students" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">التلاميذ</a>
+      <a href="/admin/ranking" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">🏆 الترتيب</a>
+      <a href="/admin/calendar" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">📆 التقويم</a>
+      <a href="/admin/settings" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">الإعدادات</a>
       <a href="/admin/export/csv" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">📥 تصدير CSV</a>
       <button onclick="toggleDark()" class="block w-full text-right hover:bg-white/10 px-3 py-2 rounded-lg text-sm">🌓 الوضع الليلي</button>
       <a href="/logout" class="block bg-red-500/80 hover:bg-red-500 px-3 py-2 rounded-lg text-sm">خروج</a>
@@ -103,6 +112,25 @@
       </div>
     </div>
     <% } %>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <a href="/admin/ranking" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 border border-amber-100 dark:border-amber-900 card-hover hover:shadow-md transition flex flex-col items-center gap-1.5 text-center">
+        <span class="text-2xl">🏆</span>
+        <span class="text-sm font-bold text-gray-700 dark:text-gray-200">الترتيب</span>
+      </a>
+      <a href="/admin/calendar" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 border border-cyan-100 dark:border-cyan-900 card-hover hover:shadow-md transition flex flex-col items-center gap-1.5 text-center">
+        <span class="text-2xl">📆</span>
+        <span class="text-sm font-bold text-gray-700 dark:text-gray-200">التقويم</span>
+      </a>
+      <a href="/admin/export/csv" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 border border-blue-100 dark:border-blue-900 card-hover hover:shadow-md transition flex flex-col items-center gap-1.5 text-center">
+        <span class="text-2xl">📥</span>
+        <span class="text-sm font-bold text-gray-700 dark:text-gray-200">CSV</span>
+      </a>
+      <a href="/admin/settings" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 border border-purple-100 dark:border-purple-900 card-hover hover:shadow-md transition flex flex-col items-center gap-1.5 text-center">
+        <span class="text-2xl">⚙️</span>
+        <span class="text-sm font-bold text-gray-700 dark:text-gray-200">الإعدادات</span>
+      </a>
+    </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">

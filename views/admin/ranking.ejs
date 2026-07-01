@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 الترتيب - <%= admin.school_name %></title>
+  <script>
+    tailwind.config={darkMode:"class"};
+    if (localStorage.getItem("dark")==="true") document.documentElement.classList.add("dark");
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  <nav class="bg-gradient-to-l from-emerald-700 to-emerald-600 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between h-14">
+        <div class="flex items-center gap-2">
+          <% if (admin.logo) { %><img src="<%= admin.logo %>" class="w-9 h-9 rounded-lg object-cover"><% } else { %><span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span><% } %>
+          <span class="font-bold text-sm"><%= admin.school_name %></span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="hidden md:flex items-center gap-1">
+            <a href="/admin/dashboard" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">الرئيسية</a>
+            <a href="/admin/students" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">التلاميذ</a>
+            <a href="/admin/ranking" class="bg-white/30 px-3 py-1.5 rounded-lg text-sm font-medium">🏆 الترتيب</a>
+            <a href="/admin/calendar" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">📆 التقويم</a>
+            <a href="/admin/settings" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">الإعدادات</a>
+          </div>
+          <button id="menuBtn" class="md:hidden p-2 hover:bg-white/20 rounded-lg">☰</button>
+          <a href="/logout" class="text-white/80 hover:text-white p-2">🚪</a>
+        </div>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 space-y-1">
+      <a href="/admin/dashboard" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">الرئيسية</a>
+      <a href="/admin/students" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">التلاميذ</a>
+      <a href="/admin/ranking" class="block bg-white/20 px-3 py-2 rounded-lg text-sm font-medium">🏆 الترتيب</a>
+      <a href="/admin/calendar" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">📆 التقويم</a>
+      <a href="/admin/settings" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">الإعدادات</a>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-3">🏆 ترتيب التلاميذ</h1>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-l from-emerald-600 to-emerald-500 text-white">
+            <tr>
+              <th class="px-4 py-3 text-right text-sm w-12">#</th>
+              <th class="px-4 py-3 text-right text-sm">الاسم</th>
+              <th class="px-4 py-3 text-center text-sm">السورة</th>
+              <th class="px-4 py-3 text-center text-sm">الحصص</th>
+              <th class="px-4 py-3 text-center text-sm">الحضور</th>
+              <th class="px-4 py-3 text-center text-sm">الحفظ</th>
+              <th class="px-4 py-3 text-center text-sm">المعدل</th>
+              <th class="px-4 py-3 text-center text-sm">المستوى</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            <% students.forEach((s, i) => { %>
+              <% const avg = s.session_count > 0 ? Math.round(s.present_count / s.session_count * 100) : 0 %>
+              <tr class="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition <%= i < 3 ? 'bg-amber-50/50 dark:bg-amber-900/10' : '' %>">
+                <td class="px-4 py-3 text-sm font-bold <%= i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-amber-700' : 'text-gray-500' %>">
+                  <%= i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1) %>
+                </td>
+                <td class="px-4 py-3">
+                  <a href="/admin/students/<%= s.id %>" class="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"><%= s.name %></a>
+                </td>
+                <td class="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-400"><%= s.level %></td>
+                <td class="px-4 py-3 text-center font-bold text-gray-800 dark:text-gray-200"><%= s.session_count %></td>
+                <td class="px-4 py-3 text-center text-sm">
+                  <span class="<%= avg >= 80 ? 'text-emerald-600' : avg >= 50 ? 'text-amber-600' : 'text-red-600' %> font-bold"><%= s.present_count %>/<%= s.session_count %></span>
+                </td>
+                <td class="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-400"><%= s.memorization_count %></td>
+                <td class="px-4 py-3 text-center">
+                  <div class="flex items-center gap-1 justify-center">
+                    <div class="w-16 h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full transition-all duration-500 <%= avg >= 80 ? 'bg-emerald-500' : avg >= 50 ? 'bg-amber-500' : 'bg-red-500' %>" style="width:<%= avg %>%"></div>
+                    </div>
+                    <span class="text-xs font-bold <%= avg >= 80 ? 'text-emerald-600' : avg >= 50 ? 'text-amber-600' : 'text-red-600' %>"><%= avg %>%</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <% if (avg >= 90) { %><span class="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full text-xs">ممتاز</span>
+                  <% } else if (avg >= 75) { %><span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full text-xs">جيد جداً</span>
+                  <% } else if (avg >= 50) { %><span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full text-xs">جيد</span>
+                  <% } else { %><span class="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs">تحت الإشراف</span><% } %>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (students.length === 0) { %>
+              <tr><td colspan="8" class="px-4 py-10 text-center text-gray-400">لا يوجد تلاميذ بعد</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+  <script>
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

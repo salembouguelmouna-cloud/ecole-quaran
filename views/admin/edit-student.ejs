@@ -8,7 +8,11 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <title>تعديل تلميذ - منارة حميم</title>
+  <title>تعديل تلميذ - <%= admin.schoolName || 'منارة حميم' %></title>
+  <script>
+    tailwind.config={darkMode:"class"};
+    if (localStorage.getItem("dark")==="true") document.documentElement.classList.add("dark");
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/css/style.css">
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
@@ -20,15 +24,14 @@
       document.documentElement.classList.toggle('dark');
       localStorage.setItem('dark', document.documentElement.classList.contains('dark'));
     }
-    if (localStorage.getItem('dark') === 'true') document.documentElement.classList.add('dark');
-  </script>
+    </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
   <nav class="gradient-main text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
         <span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span>
-        <span class="font-bold text-lg">منارة حميم</span>
+        <span class="font-bold text-lg"><%= admin.schoolName || 'منارة حميم' %></span>
       </div>
       <div class="hidden md:flex items-center gap-3">
         <span class="text-emerald-100 text-sm bg-white/10 px-3 py-1 rounded-full"><%= admin.name %></span>
@@ -76,10 +79,17 @@
         </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم ولي الأمر *</label>
-        <input type="text" name="parentName" value="<%= student.parent_name %>" required
-          class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم ولي الأمر *</label>
+          <input type="text" name="parentName" value="<%= student.parent_name %>" required
+            class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">رقم هاتف ولي الأمر</label>
+          <input type="text" name="parentPhone" value="<%= student.parent_phone || '' %>" placeholder="06XXXXXXXX"
+            class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" dir="ltr">
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">

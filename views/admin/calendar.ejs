@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📆 التقويم - <%= admin.school_name %></title>
+  <script>
+    tailwind.config={darkMode:"class"};
+    if (localStorage.getItem("dark")==="true") document.documentElement.classList.add("dark");
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  <nav class="bg-gradient-to-l from-emerald-700 to-emerald-600 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between h-14">
+        <div class="flex items-center gap-2">
+          <% if (admin.logo) { %><img src="<%= admin.logo %>" class="w-9 h-9 rounded-lg object-cover"><% } else { %><span class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-lg">🕌</span><% } %>
+          <span class="font-bold text-sm"><%= admin.school_name %></span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="hidden md:flex items-center gap-1">
+            <a href="/admin/dashboard" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">الرئيسية</a>
+            <a href="/admin/students" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">التلاميذ</a>
+            <a href="/admin/ranking" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">🏆 الترتيب</a>
+            <a href="/admin/calendar" class="bg-white/30 px-3 py-1.5 rounded-lg text-sm font-medium">📆 التقويم</a>
+            <a href="/admin/settings" class="text-white hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">الإعدادات</a>
+          </div>
+          <button id="menuBtn" class="md:hidden p-2 hover:bg-white/20 rounded-lg">☰</button>
+          <a href="/logout" class="text-white/80 hover:text-white p-2">🚪</a>
+        </div>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 space-y-1">
+      <a href="/admin/dashboard" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">الرئيسية</a>
+      <a href="/admin/students" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">التلاميذ</a>
+      <a href="/admin/ranking" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">🏆 الترتيب</a>
+      <a href="/admin/calendar" class="block bg-white/20 px-3 py-2 rounded-lg text-sm font-medium">📆 التقويم</a>
+      <a href="/admin/settings" class="block hover:bg-white/10 px-3 py-2 rounded-lg text-sm">الإعدادات</a>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-3">📆 تقويم الحصص</h1>
+
+    <% const monthNames = ['يناير','فبراير','مارس','أبريل','ماي','يونيو','يوليوز','غشت','شتنبر','أكتوبر','نونبر','دجنبر']; %>
+
+    <% Object.entries(months).forEach(([monthKey, monthSessions]) => { %>
+      <% const [y, m] = monthKey.split('-').map(Number) %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900 p-5 mb-5">
+        <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-3"><%= monthNames[m-1] %> <%= y %></h2>
+        <div class="grid gap-2">
+          <% monthSessions.forEach(session => { %>
+            <% const pct = session.total > 0 ? Math.round(session.present / session.total * 100) : 0 %>
+            <div class="flex items-center justify-between p-3 rounded-xl <%= pct >= 80 ? 'bg-emerald-50 dark:bg-emerald-900/20' : pct >= 50 ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-red-50 dark:bg-red-900/20' %>">
+              <div class="flex items-center gap-3">
+                <span class="text-lg"><%= ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(session.date).getDay()] %></span>
+                <span class="text-gray-800 dark:text-gray-200 font-medium"><%= session.date %></span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">(<%= session.total %> تلاميذ)</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="<%= pct >= 80 ? 'text-emerald-600' : pct >= 50 ? 'text-amber-600' : 'text-red-600' %> font-bold"><%= session.present %>/<%= session.total %> حاضر</span>
+                <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full <%= pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500' %>" style="width:<%= pct %>%"></div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% }) %>
+    <% if (Object.keys(months).length === 0) { %>
+      <div class="text-center py-20 text-gray-400"><p class="text-5xl mb-4">📆</p><p>لا توجد حصص مسجلة بعد</p></div>
+    <% } %>
+  </main>
+
+  <script src="/js/theme.js"></script>
+  <script>
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>
