@@ -145,8 +145,9 @@ app.get('/admin/students/add', requireAdmin, (req, res) => {
   res.render('admin/add-student', { admin: req.session.user, error: null });
 });
 
-app.post('/admin/students/add', requireAdmin, async (req, res) => {
+app.post('/admin/students/add', requireAdmin, upload.single('studentPhoto'), async (req, res) => {
   const { name, level, parentName, parentUsername, parentPassword, parentPhone } = req.body;
+  const photo = req.file ? '/uploads/' + req.file.filename : '';
 
   const existing = await db.get('SELECT id FROM students WHERE parent_username = ?', parentUsername);
   if (existing) {
@@ -154,8 +155,8 @@ app.post('/admin/students/add', requireAdmin, async (req, res) => {
   }
 
   const hashed = bcrypt.hashSync(parentPassword, 10);
-  await db.run('INSERT INTO students (admin_id, name, level, parent_name, parent_username, parent_password, parent_phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    req.session.user.id, name, level || '', parentName, parentUsername, hashed, parentPhone || '');
+  await db.run('INSERT INTO students (admin_id, name, level, parent_name, parent_username, parent_password, parent_password_raw, parent_phone, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    req.session.user.id, name, level || '', parentName, parentUsername, hashed, parentPassword, parentPhone || '', photo);
 
   res.redirect('/admin/students');
 });
@@ -166,19 +167,20 @@ app.get('/admin/students/edit/:id', requireAdmin, async (req, res) => {
   res.render('admin/edit-student', { admin: req.session.user, student, error: null });
 });
 
-app.post('/admin/students/edit/:id', requireAdmin, async (req, res) => {
+app.post('/admin/students/edit/:id', requireAdmin, upload.single('studentPhoto'), async (req, res) => {
   const { name, level, parentName, parentUsername, parentPassword, parentPhone } = req.body;
   const student = await db.get('SELECT * FROM students WHERE id = ? AND admin_id = ?', req.params.id, req.session.user.id);
   if (!student) return res.redirect('/admin/students');
 
   try {
+    const photo = req.file ? '/uploads/' + req.file.filename : student.photo || '';
     if (parentPassword) {
       const hashed = bcrypt.hashSync(parentPassword, 10);
-      await db.run('UPDATE students SET name=?, level=?, parent_name=?, parent_username=?, parent_password=?, parent_phone=? WHERE id=? AND admin_id=?',
-        name, level || '', parentName, parentUsername, hashed, parentPhone || '', req.params.id, req.session.user.id);
+      await db.run('UPDATE students SET name=?, level=?, parent_name=?, parent_username=?, parent_password=?, parent_password_raw=?, parent_phone=?, photo=? WHERE id=? AND admin_id=?',
+        name, level || '', parentName, parentUsername, hashed, parentPassword, parentPhone || '', photo, req.params.id, req.session.user.id);
     } else {
-      await db.run('UPDATE students SET name=?, level=?, parent_name=?, parent_username=?, parent_phone=? WHERE id=? AND admin_id=?',
-        name, level || '', parentName, parentUsername, parentPhone || '', req.params.id, req.session.user.id);
+      await db.run('UPDATE students SET name=?, level=?, parent_name=?, parent_username=?, parent_phone=?, photo=? WHERE id=? AND admin_id=?',
+        name, level || '', parentName, parentUsername, parentPhone || '', photo, req.params.id, req.session.user.id);
     }
     res.redirect('/admin/students/' + req.params.id);
   } catch (err) {
@@ -278,6 +280,16 @@ app.post('/admin/upload-logo', requireAdmin, upload.single('logo'), async (req, 
     req.session.user.logo = logoPath;
   }
   res.redirect('/admin/settings');
+});
+
+app.get('/admin/card/:id', requireAdmin, async (req, res) => {
+  const student = await db.get('SELECT * FROM students WHERE id = ? AND admin_id = ?', req.params.id, req.session.user.id);
+  if (!student) return res.redirect('/admin/students');
+  const adminInfo = await db.get('SELECT * FROM admins WHERE id = ?', req.session.user.id);
+  const baseUrl = process.env.PUBLIC_URL || (req.protocol + '://' + req.get('host'));
+  const loginUrl = baseUrl + '/login';
+  const qrSvg = await qrcode.toString(loginUrl, { type: 'svg', margin: 0, width: 200, color: { dark: '#047857' } });
+  res.render('admin/card', { admin: req.session.user, student, adminInfo, qrSvg });
 });
 
 app.get('/admin/qrcode/:id', requireAdmin, async (req, res) => {

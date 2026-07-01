@@ -69,6 +69,7 @@
       <div class="flex gap-2 flex-wrap">
         <a href="/admin/students/edit/<%= student.id %>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-1.5">✏️ تعديل</a>
         <a href="/admin/progress/add/<%= student.id %>" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-1.5"><span class="text-lg">+</span> إضافة حصة</a>
+        <a href="/admin/card/<%= student.id %>" target="_blank" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-1.5">🪪 بطاقة</a>
         <a href="/admin/qrcode/<%= student.id %>" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-1.5">📱 QR</a>
         <a href="/admin/students/delete/<%= student.id %>" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-1.5" onclick="return confirm('هل أنت متأكد من حذف التلميذ <%= student.name %>؟\nسيتم حذف جميع حصصه أيضاً.')">🗑️ حذف</a>
       </div>

@@ -58,7 +58,9 @@ async function initDB() {
         parent_name TEXT NOT NULL,
         parent_username TEXT UNIQUE NOT NULL,
         parent_password TEXT NOT NULL,
+        parent_password_raw TEXT DEFAULT '',
         parent_phone TEXT DEFAULT '',
+        photo TEXT DEFAULT '',
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS progress (
@@ -92,7 +94,9 @@ async function initDB() {
         parent_name TEXT NOT NULL,
         parent_username TEXT UNIQUE NOT NULL,
         parent_password TEXT NOT NULL,
+        parent_password_raw TEXT DEFAULT '',
         parent_phone TEXT DEFAULT '',
+        photo TEXT DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
       );
@@ -115,6 +119,7 @@ async function initDB() {
     try { await db.exec('ALTER TABLE admins ADD COLUMN logo TEXT DEFAULT \'\''); } catch (e) {}
     try { await db.exec('ALTER TABLE students ADD COLUMN admin_id INTEGER NOT NULL DEFAULT 1 REFERENCES admins(id)'); } catch (e) {}
     try { await db.exec('ALTER TABLE students ADD COLUMN parent_phone TEXT DEFAULT \'\''); } catch (e) {}
+    try { await db.exec('ALTER TABLE students ADD COLUMN photo TEXT DEFAULT \'\''); } catch (e) {}
   }
 
   const adminExists = await db.get('SELECT COUNT(*) as count FROM admins');
