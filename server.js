@@ -7,7 +7,14 @@ const path = require('path');
 const db = require('./database');
 
 const app = express();
-const upload = multer({ dest: 'public/uploads/', limits: { fileSize: 2 * 1024 * 1024 } });
+const storage = multer.diskStorage({
+  destination: 'public/uploads/',
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + ext);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } });
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -288,7 +295,7 @@ app.get('/admin/card/:id', requireAdmin, async (req, res) => {
   const adminInfo = await db.get('SELECT * FROM admins WHERE id = ?', req.session.user.id);
   const baseUrl = process.env.PUBLIC_URL || (req.protocol + '://' + req.get('host'));
   const loginUrl = baseUrl + '/login';
-  const qrSvg = await qrcode.toString(loginUrl, { type: 'svg', margin: 0, width: 200, color: { dark: '#047857' } });
+  const qrSvg = await qrcode.toString(loginUrl, { type: 'svg', margin: 0, width: 160, color: { dark: '#047857' } });
   res.render('admin/card', { admin: req.session.user, student, adminInfo, qrSvg });
 });
 

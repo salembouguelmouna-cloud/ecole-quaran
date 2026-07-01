@@ -6,45 +6,60 @@
   <title>بطاقة - <%= student.name %></title>
   <style>
     @media print { @page { margin: 0; size: 85.6mm 54mm; } body { margin: 0; padding: 0; } .no-print { display: none !important; } }
-    .card { width: 85.6mm; height: 54mm; font-family: 'Traditional Arabic', 'Amiri', serif; }
   </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
   <button onclick="window.print()" class="no-print fixed top-4 left-4 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg text-sm font-bold z-10">🖨️ طباعة</button>
   <a href="/admin/students/<%= student.id %>" class="no-print fixed top-4 right-4 bg-gray-600 text-white px-4 py-3 rounded-xl shadow-lg text-sm z-10">رجوع</a>
 
-  <div class="card bg-white overflow-hidden relative" style="border: 3px solid #047857; border-radius: 10px;">
-    <!-- Top bar -->
-    <div style="background: linear-gradient(135deg, #047857, #059669); height: 8px;"></div>
+  <div style="width:85.6mm; height:54mm; background: #fff; position: relative; font-family: 'Traditional Arabic', 'Amiri', serif; overflow: hidden; border: 3px solid #047857; border-radius: 10px;">
 
-    <div style="padding: 6px 10px; display: flex; gap: 8px; align-items: flex-start;">
-      <!-- Photo (small, top right) -->
-      <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; border: 2px solid #047857; flex-shrink: 0; order: 2;">
-        <% if (student.photo) { %>
-          <img src="<%= student.photo %>" style="width:100%; height:100%; object-fit: cover;">
-        <% } else { %>
-          <div style="width:100%; height:100%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-size:22px;">🧑‍🎓</div>
-        <% } %>
+    <!-- Full background decoration -->
+    <div style="position:absolute; top:0; left:0; right:0; height:6mm; background: linear-gradient(135deg, #047857, #059669);"></div>
+    <div style="position:absolute; bottom:0; left:0; right:0; height:3mm; background: linear-gradient(135deg, #059669, #047857);"></div>
+    <div style="position:absolute; top:6mm; bottom:3mm; left:0; right:0; display: flex; flex-direction: column; padding: 3mm 4mm;">
+
+      <!-- Top: School name centered -->
+      <div style="text-align: center; margin-bottom: 2mm;">
+        <div style="font-size: 12px; color: #047857; font-weight: bold; letter-spacing: 1px;"><%= adminInfo.school_name %></div>
       </div>
 
-      <!-- Info -->
-      <div style="flex: 1; order: 0;">
-        <div style="font-size: 8px; color: #047857; font-weight: bold;"><%= adminInfo.school_name %></div>
-        <div style="font-size: 16px; font-weight: bold; color: #1f2937; margin-top: 1px;"><%= student.name %></div>
-        <div style="font-size: 9px; color: #6b7280; margin-top: 5px; line-height: 1.8;">
-          <div>👤 <b style="color:#374151;"><%= student.parent_username %></b></div>
-          <div>🔑 <b style="color:#374151; font-family:monospace; letter-spacing:1px;"><%= student.parent_password_raw || '' %></b></div>
+      <!-- Middle: main content fills remaining space -->
+      <div style="flex: 1; display: flex; gap: 3mm; align-items: center; justify-content: center;">
+
+        <!-- Photo -->
+        <div style="width: 20mm; height: 24mm; border-radius: 4px; overflow: hidden; border: 2px solid #047857; flex-shrink: 0;">
+          <% if (student.photo) { %>
+            <img src="<%= student.photo %>" style="width:100%; height:100%; object-fit: cover;">
+          <% } else { %>
+            <div style="width:100%; height:100%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-size: 28px;">🧑‍🎓</div>
+          <% } %>
+        </div>
+
+        <!-- Info center -->
+        <div style="flex: 1; text-align: center;">
+          <div style="font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 2mm;"><%= student.name %></div>
+          <div style="font-size: 10px; color: #6b7280; margin-bottom: 1mm;">
+            <span style="color:#047857;">ولي الأمر:</span> <%= student.parent_name %>
+          </div>
+        </div>
+
+        <!-- QR -->
+        <div style="width: 20mm; height: 20mm; flex-shrink: 0; display: flex; align-items: center; justify-content: center;"><%- qrSvg.replace('width="160"','width="100%"').replace('height="160"','height="100%"') %></div>
+
+      </div>
+
+      <!-- Bottom: credentials row -->
+      <div style="display: flex; justify-content: center; gap: 4mm; margin-top: 1.5mm; border-top: 1px dashed #d1d5db; padding-top: 1.5mm;">
+        <div style="font-size: 9px; color: #374151;">
+          اسم المستخدم: <b style="color:#047857; font-family:monospace;"><%= student.parent_username %></b>
+        </div>
+        <div style="font-size: 9px; color: #374151;">
+          كلمة المرور: <b style="color:#047857; font-family:monospace; letter-spacing:1px;"><%= student.parent_password_raw || '' %></b>
         </div>
       </div>
 
-      <!-- QR -->
-      <div style="width: 52px; height: 52px; flex-shrink: 0; order: 3;"><%- qrSvg %></div>
     </div>
-
-    <div style="font-size: 7px; color: #9ca3af; text-align: center; padding: 0 10px 4px;">امسح QR → أدخل اسم المستخدم وكلمة المرور</div>
-
-    <!-- Bottom bar -->
-    <div style="background: linear-gradient(135deg, #059669, #047857); height: 4px;"></div>
   </div>
 
   <div class="no-print fixed bottom-4 text-xs text-gray-400 text-center w-full">85.6 × 54 mm — حجم بطاقة الهوية</div>
