@@ -7,14 +7,7 @@ const path = require('path');
 const db = require('./database');
 
 const app = express();
-const storage = multer.diskStorage({
-  destination: 'public/uploads/',
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + ext);
-  }
-});
-const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -154,7 +147,7 @@ app.get('/admin/students/add', requireAdmin, (req, res) => {
 
 app.post('/admin/students/add', requireAdmin, upload.single('studentPhoto'), async (req, res) => {
   const { name, level, parentName, parentUsername, parentPassword, parentPhone } = req.body;
-  const photo = req.file ? '/uploads/' + req.file.filename : '';
+  const photo = req.file ? 'data:' + req.file.mimetype + ';base64,' + req.file.buffer.toString('base64') : '';
 
   const existing = await db.get('SELECT id FROM students WHERE parent_username = ?', parentUsername);
   if (existing) {
@@ -180,7 +173,7 @@ app.post('/admin/students/edit/:id', requireAdmin, upload.single('studentPhoto')
   if (!student) return res.redirect('/admin/students');
 
   try {
-    const photo = req.file ? '/uploads/' + req.file.filename : student.photo || '';
+    const photo = req.file ? 'data:' + req.file.mimetype + ';base64,' + req.file.buffer.toString('base64') : student.photo || '';
     if (parentPassword) {
       const hashed = bcrypt.hashSync(parentPassword, 10);
       await db.run('UPDATE students SET name=?, level=?, parent_name=?, parent_username=?, parent_password=?, parent_password_raw=?, parent_phone=?, photo=? WHERE id=? AND admin_id=?',
@@ -282,9 +275,9 @@ app.post('/admin/settings', requireAdmin, async (req, res) => {
 
 app.post('/admin/upload-logo', requireAdmin, upload.single('logo'), async (req, res) => {
   if (req.file) {
-    const logoPath = '/uploads/' + req.file.filename;
-    await db.run('UPDATE admins SET logo = ? WHERE id = ?', logoPath, req.session.user.id);
-    req.session.user.logo = logoPath;
+    const logoData = 'data:' + req.file.mimetype + ';base64,' + req.file.buffer.toString('base64');
+    await db.run('UPDATE admins SET logo = ? WHERE id = ?', logoData, req.session.user.id);
+    req.session.user.logo = logoData;
   }
   res.redirect('/admin/settings');
 });
