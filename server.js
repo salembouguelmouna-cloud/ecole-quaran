@@ -12,12 +12,18 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 *
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use(session({
+
+const sess = {
   secret: 'quaran-school-secret-key-2024',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
-}));
+};
+if (process.env.DATABASE_URL) {
+  const PgSession = require('connect-pg-simple')(session);
+  sess.store = new PgSession({ conString: process.env.DATABASE_URL, createTableIfMissing: true });
+}
+app.use(session(sess));
 
 function requireAuth(req, res, next) {
   if (!req.session.user) return res.redirect('/login');
