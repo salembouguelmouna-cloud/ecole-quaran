@@ -19,6 +19,7 @@ if (process.env.DATABASE_URL) {
     run(sql, ...params) { return pool.query(convertSql(sql, params)).then(r => ({ changes: r.rowCount, lastInsertRowid: null })); },
     exec(sql) { return pool.query(sql); },
     isPG: true,
+    pool,
   };
 } else {
   const Database = require('better-sqlite3');
