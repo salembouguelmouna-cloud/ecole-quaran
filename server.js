@@ -73,7 +73,7 @@ app.post('/login', async (req, res) => {
     return res.redirect('/parent/dashboard');
   }
 
-  res.render('login', { error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
+  res.render('login', { error: 'اسم المستخدم أو كلمة المرور غير صحيحة', registered: false });
 });
 
 app.get('/register', (req, res) => {
